@@ -2,6 +2,8 @@ var mainState = {
     preload: function() {
     	game.load.image('ground','assets/ground.png');
     	//game.load.image('devahoy','assets/logo.png');
+    	game.load.spritesheet('player', 'assets/warrior_m.png', 32, 36);
+
     },
 
     create: function() {
@@ -30,10 +32,20 @@ var mainState = {
 		top.scale.setTo(0.2, 1);
 		top.body.immovable = true;
 
+		this.player = game.add.sprite(0, 450, 'player');
+		game.physics.arcade.enable(this.player);
+		this.player.body.bounce.y = 0.25;
+		this.player.body.gravity.y = 980;
+		this.player.body.collideWorldBounds = true;
+
+		this.player.animations.add('right', [3, 4, 5], 10, true);
+		this.player.animations.add('left', [9, 10, 11], 10, true);
+
+		this.player.frame = 6;
     },
 
     update: function() {
-
+    	game.physics.arcade.collide(this.player, this.myWorld);
     }
 };
 
