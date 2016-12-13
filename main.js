@@ -16,6 +16,20 @@ var mainState = {
 		ground.scale.setTo(2,2);
 		ground.body.immovable = true;
 
+		var left = this.myWorld.create(0, 450 - 32, 'ground');
+		left.body.immovable = true;
+
+		var right = this.myWorld.create(450, 350 - 32, 'ground');
+		right.body.immovable = true;
+
+		var middle = this.myWorld.create(250, 250 - 32, 'ground');
+		middle.scale.setTo(0.3, 1);
+		middle.body.immovable = true;
+
+		var top = this.myWorld.create(100, 150 -32, 'ground');
+		top.scale.setTo(0.2, 1);
+		top.body.immovable = true;
+
     },
 
     update: function() {
