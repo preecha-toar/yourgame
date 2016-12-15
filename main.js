@@ -1,55 +1,66 @@
 var mainState = {
+
     preload: function() {
-    	game.load.image('ground','assets/ground.png');
-    	//game.load.image('devahoy','assets/logo.png');
-    	game.load.spritesheet('player', 'assets/warrior_m.png', 32, 36);
+    	game.load.spritesheet('player', 'assets/character.png', 65, 85);
+    	game.load.spritesheet('shot', 'assets/shot.png', 30,18);
 
     },
 
     create: function() {
+    	var keyA;
     	game.physics.startSystem(Phaser.Physics.ARCADE);
     	game.stage.backgroundColor = '#a8e8ff';
-
-    	this.myWorld = game.add.group();
-    	//game.add.sprite(0,0,'devahoy');
+		this.myWorld = game.add.group();
     	this.myWorld.enableBody = true;
 
-    	var ground = this.myWorld.create(0,game.world.height - 64,'ground');
-		ground.scale.setTo(2,2);
-		ground.body.immovable = true;
-
-		var left = this.myWorld.create(0, 450 - 32, 'ground');
-		left.body.immovable = true;
-
-		var right = this.myWorld.create(450, 350 - 32, 'ground');
-		right.body.immovable = true;
-
-		var middle = this.myWorld.create(250, 250 - 32, 'ground');
-		middle.scale.setTo(0.3, 1);
-		middle.body.immovable = true;
-
-		var top = this.myWorld.create(100, 150 -32, 'ground');
-		top.scale.setTo(0.2, 1);
-		top.body.immovable = true;
-
+    	
+    	
+    	//player
 		this.player = game.add.sprite(0, 450, 'player');
 		game.physics.arcade.enable(this.player);
-		this.player.body.bounce.y = 0.25;
-		this.player.body.gravity.y = 980;
+		//this.player.body.bounce.y = 0.25;
+		//this.player.body.gravity.y = 980;
 		this.player.body.collideWorldBounds = true;
+		this.player.animations.add('down', [0,1,2,3,4,5,6], 10, false);
+		this.player.animations.add('up', [7,8,9,10,11,12,13], 10, false);
+		this.player.animations.add('left', [14,15,16,17,18,19,20], 10, false);
+		this.player.animations.add('right', [21,22,23,24,25,26,27], 10, false);
+		this.player.frame = 1;
 
-		this.player.animations.add('right', [3, 4, 5], 10, true);
-		this.player.animations.add('left', [9, 10, 11], 10, true);
-
-		this.player.frame = 6;
+		this.corsors = this.input.keyboard.createCursorKeys();
+		//***************************************************
+		keyA = game.input.keyboard.addKey(Phaser.Keyboard.A);
+		keyA.onDown.add(addPhaserShot, this);
+		//game.input.keyboard.removeKeyCapture(Phaser.Keyboard.a);
     },
 
     update: function() {
-    	game.physics.arcade.collide(this.player, this.myWorld);
-    }
-};
 
+    	this.player.body.velocity.x = 0;
+    	this.player.body.velocity.y = 0;
+    	if(this.corsors.up.isDown){
+    		this.player.body.velocity.y = -100;
+    		this.player.animations.play('up');
+    	}else if(this.corsors.down.isDown){
+    		this.player.body.velocity.y = 100;
+    		this.player.animations.play('down');
+    	}else if(this.corsors.left.isDown){
+    		this.player.body.velocity.x = -100;
+    		this.player.animations.play('left');
+    	}else if(this.corsors.right.isDown){
+    		this.player.body.velocity.x = 100;
+    		this.player.animations.play('right');
+    	}
+    },
+    /*
+    addPhaserShot: function(){
+    	this.game.add.sprite(game.player.X, game.player.Y, 'shot');
+    	this.shot.body.velocity.x = -200;
+    }*/
+};
 
 var game = new Phaser.Game(800, 600, Phaser.AUTO, 'game');
 game.state.add('main', mainState);
 game.state.start('main');
+
+//credit: https://phaser.io/examples/v2/input/cursor-key-movement
