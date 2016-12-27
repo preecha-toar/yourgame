@@ -4,63 +4,36 @@ var mainState = {
     	game.load.spritesheet('player', 'assets/character.png', 65, 85);
     	game.load.spritesheet('bullet', 'assets/shot.png', 20,20);
     	game.load.spritesheet('box','assets/box.png', 30, 200);
+    	game.load.spritesheet('bot','assets/bot.png',65,85);
 
     },
 
     create: function() {
     	game.physics.startSystem(Phaser.Physics.ARCADE);
     	game.stage.backgroundColor = '#a8e8ff';
-
 		this.myWorld = game.add.group();
     	this.myWorld.enableBody = true;
- 
-
-    	box = game.add.physicsGroup(Phaser.Physics.ARCADE);
-    	for(var i = 0; i < 10; i++){
-    		var b = box.create(game.world.randomX, Math.random()*500, 'box', game.rnd.integerInRange(0,36));
-    		b.name = 'bo' + i;
-    		b.body.immovable = true;
-    	}
-    	
-
-    	
-    	//var box = this.myWorld.create(500,150,'box');
-    	//box.body.immovable = true;
-
-    	bullets = game.add.group();
-    	bullets.enableBody = true;
-    	bullets.physicsBodyType = Phaser.Physics.ARCADE;
-    	bullets.createMultiple(20, 'bullet', 0, false);
-    	bullets.setAll('anchor.x', 0.5);
-    	bullets.setAll('anchor.y', 1);
-    	bullets.setAll('outOfBoundsKill', true);
-    	bullets.setAll('checkWorldBounds',true);
-    	keyA = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-		keyA.onDown.add(this.shot_now, this);
-
-	
-    	//player
-		this.player = game.add.sprite(0, 450, 'player');
-		game.physics.arcade.enable(this.player);
-
-
-		//game.camera.follow(player);
-		//this.player.body.bounce.y = 0.25;
-		//this.player.body.gravity.y = 980;
-		this.player.body.collideWorldBounds = true;
-		this.player.animations.add('down', [0,1,2,3,4,5,6], 10, false);
-		this.player.animations.add('up', [7,8,9,10,11,12,13], 10, false);
-		this.player.animations.add('left', [14,15,16,17,18,19,20], 10, false);
-		this.player.animations.add('right', [21,22,23,24,25,26,27], 10, false);
-		this.player.frame = 1;
-
-		this.corsors = this.input.keyboard.createCursorKeys();		
+    	this.createbox();
+    	this.creatbullets();
+    	this.creatplayer();
+    	this.creatbot();
+    	this.corsors = this.input.keyboard.createCursorKeys();		
 
     },
 
     update: function() {
     	game.physics.arcade.collide(this.player, box);
+    	game.physics.arcade.collide(this.player, this.bot);
     	game.physics.arcade.overlap(bullets,box,this.collectBullet, null, this);
+    	game.physics.arcade.overlap(this.bot,bullets,this.botcheck, null, this);
+    	this.controllPlayer();
+    	this.AIbot();
+    },
+
+   	collectBullet: function(bullets){
+   		bullets.kill();
+   	},
+   	controllPlayer: function(){
     	this.player.body.velocity.x = 0;
     	this.player.body.velocity.y = 0;
     	if(this.corsors.up.isDown){
@@ -80,8 +53,35 @@ var mainState = {
     		this.player.animations.play('right');
     		state = 2;
 		}
-     },
-	shot_now: function(){
+   	},
+   	creatbullets: function(){
+   		bullets = game.add.group();
+    	bullets.enableBody = true;
+    	bullets.physicsBodyType = Phaser.Physics.ARCADE;
+    	bullets.createMultiple(20, 'bullet', 0, false);
+    	bullets.setAll('anchor.x', 0.5);
+    	bullets.setAll('anchor.y', 1);
+    	bullets.setAll('outOfBoundsKill', true);
+    	bullets.setAll('checkWorldBounds',true);
+    	keyA = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+		keyA.onDown.add(this.shot_now, this);
+   	},
+   	creatplayer: function(){
+   		this.player = game.add.sprite(0, 450, 'player');
+		game.physics.arcade.enable(this.player);
+		this.player.body.collideWorldBounds = true;
+		this.player.animations.add('down', [0,1,2,3,4,5,6], 10, false);
+		this.player.animations.add('up', [7,8,9,10,11,12,13], 10, false);
+		this.player.animations.add('left', [14,15,16,17,18,19,20], 10, false);
+		this.player.animations.add('right', [21,22,23,24,25,26,27], 10, false);
+		this.player.frame = 1;
+   	},
+   	createbox: function(){
+   		box = game.add.physicsGroup(Phaser.Physics.ARCADE);
+   		var b = box.create(250,220,'box');
+   		b.body.immovable = true;
+   	},
+   	shot_now: function(){
 		if(game.time.now > nextshot){
     		nextshot = game.time.now + shotRate;
     		var bullet = bullets.getFirstExists(false);
@@ -102,11 +102,26 @@ var mainState = {
     		}
     	}
    	},
-   	collectBullet: function(bullets){
-   		bullets.kill();
-   	}
-
+   	creatbot: function(){
+   		this.bot = game.add.sprite(500,500, 'bot');
+   		game.physics.arcade.enable(this.bot);
+		this.bot.body.collideWorldBounds = true;
+		this.bot.animations.add('down', [0,1,2,3,4,5,6], 10, false);
+		this.bot.animations.add('up', [7,8,9,10,11,12,13], 10, false);
+		this.bot.animations.add('left', [14,15,16,17,18,19,20], 10, false);
+		this.bot.animations.add('right', [21,22,23,24,25,26,27], 10, false);
+		this.bot.frame = 14;
+   	},
+   	botcheck: function(bullets, bot){
+   		bot.kill();
+   	},
+   	AIbot: function(){
+   		this.bot.body.velocity.x = 0;
+    	this.bot.body.velocity.y = 0;
+    	
+	}
 };
+var bot;
 var box;
 var state;
 var bulletButton;
